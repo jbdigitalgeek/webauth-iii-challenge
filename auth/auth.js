@@ -1,5 +1,5 @@
 const bcrypt = require('bcryptjs');
-const Users = require('../api/user-model');
+const Users = require('../data/user-model');
 
 
 function protected(req, res, next) {
