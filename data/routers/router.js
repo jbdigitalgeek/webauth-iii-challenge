@@ -1,8 +1,19 @@
 const router = require('express').Router();
 const Users = require('../user-model');
-const protected = require('../../auth/auth');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const secret = require('../../auth/secret')
 
+function generateToken(user) {
+  const payload = {
+    subject: user.id,
+    username: user.username
+  };
+  const option = {
+    expiresIn: '1d'
+  };
+  return jwt.sign(payload, secret.jwtSecret, option);
+}
 
 router.post('/register', (req, res) => {
   let user = req.body;
@@ -22,15 +33,17 @@ router.post('/register', (req, res) => {
 
 router.post('/login', (req, res) => {
   let { username, password } = req.body;
-
   Users.findBy({ username })
     .first()
     .then(user => {
+      const token = generateToken(user);
       if (user && bcrypt.compareSync(password, user.password)) {
-        req.session.username = user.username;
-        res.status(200).json({ message: `Hello ${user.username}!` });
+        res.status(200).json({
+          message: `Welcome ${user.username}!`,
+          token,
+        });
       } else {
-        res.status(401).json({ message: ' Unauthorized ' });
+        res.status(401).json({ message: 'Unauthorized' });
       }
     })
     .catch(error => {
@@ -38,13 +51,6 @@ router.post('/login', (req, res) => {
     });
 });
 
- router.get('/users', protected, (req, res) => {
-  Users.find()
-    .then(users => {
-      res.json(users);
-    })
-    .catch(error => res.send(error));
-});
 
 
 router.get('/logout', (req, res) => {

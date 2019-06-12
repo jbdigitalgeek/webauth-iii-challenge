@@ -1,32 +1,17 @@
-const bcrypt = require('bcryptjs');
-const Users = require('../data/user-model');
 
+const jwt = require('jsonwebtoken');
+const { jwtSecret } = require('../auth/secret');
 
-function protected(req, res, next) {
-  const { username, password } = req.headers;
-   
+module.exports = (req, res, next) => {
+  const token = req.headers.authorization;
 
-  if (req.session && req.session.username) { 
-    next();
-  } else {
-    if (username && password) {
-      Users
-        .findBy({ username })
-        .first()
-        .then(user => {
-          if (user && bcrypt.compareSync(password, user.password)) {
-            next();
-          } else {
-            res.status(401).json({ message: 'Unauthorized' });
-          }
-        })
-        .catch(error => {
-          res.status(500).json({ error: `${error}` });
-        });
-    } else {
-      res.status(401).json({ message: 'Unauthorized' });
-    }
-  }
+ 
+    jwt.verify(token, jwtSecret, (error, decodedToken) => {
+        if (error) { res.status(401).json({ error: 'Unauthorized - Token' }) }
+      else {
+          req.decodedToken = decodedToken,
+        next()
+      }
+    })
+ 
 }
-
- module.exports = protected;
