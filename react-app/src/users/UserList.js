@@ -1,41 +1,44 @@
 import React from 'react';
 import axios from 'axios';
 
-import '../axiosAuth/addInterceptors';
-import requiresAuth from '../axiosAuth/requiresAuth';
+
 
 class UserList extends React.Component {
   state = {
-    users: [],
+    users: []
   };
 
   render() {
     return (
       <>
+
         <h2>Our Users</h2>
 
         <ul>
-          {this.state.users.map(users => (
-            <li key={users.id}>{users.username}</li>
+          {this.state.users.map(user => (
+            <li key={user.id}>{user.username}</li>
           ))}
         </ul>
+       
       </>
     );
   }
 
   componentDidMount() {
-    const endpoint = '/users';
+    const endpoint ='http://localhost:4000/api/users';
 
     axios
-      .get(endpoint)
+      .get(endpoint, {
+        headers: { Authorization: localStorage.getItem('jwt') }
+      })
       .then(res => {
         console.log('users', res.data);
-        this.setState(() => ({ users: res.data }));
+        this.setState(() => ({ users: res.data.users }));
       })
-      .catch(({ response }) => {
-        console.error('users error', response);
-      });
+      .catch(({ error }) => {
+        console.error('users error', error);
+      })
   }
 }
 
-export default requiresAuth(UserList);
+export default UserList;
