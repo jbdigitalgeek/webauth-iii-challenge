@@ -1,9 +1,9 @@
-import React from 'react';
-import { NavLink, Route, withRouter } from 'react-router-dom';
-
-import './App.css';
-import Login from './axiosAuth/Login';
-import UserList from './users/UserList';
+import React from "react";
+import { NavLink, Route, withRouter } from "react-router-dom";
+import Register from "./axiosAuth/register";
+import "./App.css";
+import Login from "./axiosAuth/Login";
+import UserList from "./users/UserList";
 
 class App extends React.Component {
   render() {
@@ -13,10 +13,12 @@ class App extends React.Component {
           <nav>
             <NavLink to="/users">Users</NavLink>
             <NavLink to="/login">Login</NavLink>
+            <NavLink to="/register">Register</NavLink>
             <button onClick={this.logout}>Logout</button>
           </nav>
         </header>
         <main>
+          <Route path="/register" component={Register} />
           <Route path="/users" component={UserList} />
           <Route path="/login" component={Login} />
         </main>
@@ -25,9 +27,9 @@ class App extends React.Component {
   }
 
   logout = () => {
-    localStorage.removeItem('jwt');
+    localStorage.removeItem("jwt");
 
-    this.props.history.push('/login');
+    this.props.history.push("/login");
   };
 }
 
